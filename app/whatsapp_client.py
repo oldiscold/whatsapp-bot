@@ -27,10 +27,13 @@ async def send_message(to: str, text: str) -> None:
             try:
                 resp = await client.post(url, headers=headers, json=payload)
                 if resp.status_code in (429,) or resp.status_code >= 500:
-                    logger.warning("WhatsApp API attempt %d: status %d", attempt, resp.status_code)
+                    logger.warning("WhatsApp API attempt %d: status %d body: %s", attempt, resp.status_code, resp.text)
                     if attempt < len(delays):
                         await asyncio.sleep(delay)
                     continue
+                if not resp.is_success:
+                    logger.error("WhatsApp API error %d: %s", resp.status_code, resp.text)
+                    return
                 resp.raise_for_status()
                 return
             except httpx.HTTPError as exc:
