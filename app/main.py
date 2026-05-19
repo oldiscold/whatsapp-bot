@@ -65,6 +65,7 @@ async def receive_webhook(request: Request, background_tasks: BackgroundTasks):
     except (KeyError, IndexError):
         return Response(status_code=200)
 
+    logger.info("Incoming message from: %s type: %s", phone, msg_type)
     background_tasks.add_task(_process_message, phone, msg_type, text)
     return Response(status_code=200)
 
