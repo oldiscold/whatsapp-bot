@@ -6,6 +6,8 @@ import time
 from datetime import datetime, timezone
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Request, Response
+from fastapi.responses import HTMLResponse
+from app.privacy import PRIVACY_POLICY_HTML
 
 from app import session, whatsapp_client
 from app.config import settings
@@ -23,6 +25,11 @@ app = FastAPI()
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+@app.get("/privacy", response_class=HTMLResponse)
+async def privacy():
+    return PRIVACY_POLICY_HTML
 
 
 @app.get("/webhook")
