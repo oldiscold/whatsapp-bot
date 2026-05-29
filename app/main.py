@@ -9,7 +9,7 @@ from fastapi import BackgroundTasks, FastAPI, HTTPException, Request, Response
 from fastapi.responses import HTMLResponse
 from app.privacy import PRIVACY_POLICY_HTML
 
-from app import session, whatsapp_client
+from app import session, whatsapp_client, profile as profile_store
 from app.config import settings
 from app.escalation import build_escalation_reply, check_keywords, check_rag_score
 from app.rag_chain import get_answer, search
@@ -107,7 +107,10 @@ async def _process_message(phone: str, msg_type: str, text: str) -> None:
     history = session.get_history(phone)
     session.add_message(phone, "user", text)
 
-    reply = await get_answer(text, history)
+    client_profile = profile_store.get_profile(phone)
+    reply, profile_updates = await get_answer(text, history, profile=client_profile)
+    if profile_updates:
+        profile_store.update_profile(phone, profile_updates)
 
     session.add_message(phone, "assistant", reply)
     await whatsapp_client.send_message(phone, reply)

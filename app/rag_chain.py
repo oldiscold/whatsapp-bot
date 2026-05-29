@@ -8,7 +8,7 @@ from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 
 from app.config import settings
-from app.prompts import build_system_prompt
+from app.prompts import build_system_prompt, parse_and_strip_profile_tags
 from app import fewshot
 
 _embeddings = OpenAIEmbeddings(
@@ -51,7 +51,9 @@ def search(query: str, k: int = 3) -> Tuple[List[str], float]:
 async def get_answer(
     user_message: str,
     history: List[dict],
-) -> str:
+    profile: dict = None,
+) -> Tuple[str, dict]:
+    """Returns (clean_reply, profile_updates)."""
     chunks, best_score = search(user_message)
     examples = fewshot.get_examples(user_message)
 
@@ -60,6 +62,7 @@ async def get_answer(
         fewshot_examples=examples,
         history=history,
         user_message=user_message,
+        profile=profile or {},
     )
 
     messages = [SystemMessage(content=system_text)]
@@ -71,7 +74,8 @@ async def get_answer(
     messages.append(HumanMessage(content=user_message))
 
     response = await _llm.ainvoke(messages)
-    return response.content
+    clean_reply, profile_updates = parse_and_strip_profile_tags(response.content)
+    return clean_reply, profile_updates
 
 
 _load_vectorstore()
