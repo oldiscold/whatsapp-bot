@@ -50,11 +50,12 @@ def format_profile(profile: dict) -> str:
     if not profile:
         return "Данных пока нет."
     labels = {
+        "name": "Имя",
         "city": "Город",
-        "position": "Должность",
+        "position": "Найм/бизнес",
         "niche": "Ниша/сфера",
         "goals": "Задачи/цели",
-        "name": "Имя",
+        "request": "Главный запрос",
     }
     lines = [f"{labels.get(k, k)}: {v}" for k, v in profile.items() if v]
     return "\n".join(lines) if lines else "Данных пока нет."
