@@ -18,7 +18,7 @@ class Settings(BaseSettings):
         env="ESCALATION_CONTACT",
     )
 
-    bot_name: str = Field("Бек", env="BOT_NAME")
+    bot_name: str = Field("Айбек", env="BOT_NAME")
     company_name: str = Field("JV Team", env="COMPANY_NAME")
     payment_link: str = Field("https://app.jvteam.kz/checkout/83", env="PAYMENT_LINK")
 
