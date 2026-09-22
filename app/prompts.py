@@ -209,12 +209,10 @@ def _build_rag_block(chunks: List[str]) -> str:
 
 
 def _trim_history(history: List[Dict[str, str]], token_budget: int) -> List[Dict[str, str]]:
+    """Drop oldest messages one at a time until the history fits the budget."""
     result = list(history)
     total = sum(_count_tokens(m["content"]) for m in result)
-    if total > token_budget and len(result) > 4:
-        result = result[-4:]
-        total = sum(_count_tokens(m["content"]) for m in result)
-    while total > token_budget and len(result) > 0:
+    while total > token_budget and result:
+        total -= _count_tokens(result[0]["content"])
         result = result[1:]
-        total = sum(_count_tokens(m["content"]) for m in result)
     return result

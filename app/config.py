@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     app_secret: str = Field(..., env="APP_SECRET")
 
     escalation_score_threshold: float = Field(0.7, env="ESCALATION_SCORE_THRESHOLD")
-    max_history_messages: int = Field(20, env="MAX_HISTORY_MESSAGES")
+    max_history_messages: int = Field(40, env="MAX_HISTORY_MESSAGES")
     max_prompt_tokens: int = Field(12000, env="MAX_PROMPT_TOKENS")
     escalation_contact: str = Field(
         "+7 (xxx) xxx-xx-xx или @username в Telegram",
