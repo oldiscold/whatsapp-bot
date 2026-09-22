@@ -20,6 +20,7 @@ class Settings(BaseSettings):
 
     bot_name: str = Field("Бек", env="BOT_NAME")
     company_name: str = Field("JV Team", env="COMPANY_NAME")
+    payment_link: str = Field("https://app.jvteam.kz/checkout/83", env="PAYMENT_LINK")
 
     faiss_index_path: str = "data/faiss_index"
     fewshot_index_path: str = "data/fewshot_index"
