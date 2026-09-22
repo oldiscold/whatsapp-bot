@@ -124,6 +124,26 @@ def parse_chat(text: str, manager_names: set[str]) -> list[dict]:
     return messages
 
 
+# Few-shot examples teach STYLE only. Any pair carrying facts about other
+# products (ТЭМ, offline trainings, their prices/dates) poisons the answers:
+# the model retrieves them by meaning and repeats those facts as if they were
+# about БАЗА. It also copies declined speaker names from live dialogs.
+CONTAMINATED_RE = re.compile(
+    r"ТЭМ"
+    r"|Техник[аи]\s+Эффективного"
+    r"|тренинг|семинар|о[фф]+лайн"
+    r"|Жексен|Дарбабаев|Багдат|Асанов|Максутов|Зубарев|Балясов|Тарасенков|Кондратенко|Абаков"
+    r"|\d[\d\s]{2,}\s*(?:тг|тенге|₸|к\b|млн)|стоимост|бронирован"
+    r"|\d{1,2}[-–]\d{1,2}\s*(?:январ|февр|март|апрел|ма[яй]|июн|июл|авг|сент|октяб|нояб|декаб)"
+    r"|https?://",
+    re.IGNORECASE,
+)
+
+
+def is_contaminated(pair: dict) -> bool:
+    return bool(CONTAMINATED_RE.search(pair["client"] + " " + pair["manager"]))
+
+
 def extract_pairs(messages: list[dict]) -> list[dict]:
     pairs = []
     i = 0
@@ -140,10 +160,12 @@ def extract_pairs(messages: list[dict]) -> list[dict]:
             if manager_parts:
                 manager_text = " ".join(manager_parts)
                 if len(manager_text) >= 5:
-                    pairs.append({
+                    pair = {
                         "client": " ".join(client_parts),
                         "manager": manager_text,
-                    })
+                    }
+                    if not is_contaminated(pair):
+                        pairs.append(pair)
         else:
             i += 1
     return pairs
